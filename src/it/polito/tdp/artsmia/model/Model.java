@@ -30,13 +30,17 @@ public class Model {
 	public void creaGrafo() {
 		Graphs.addAllVertices(grafo, oggetti);
 		
-		for(ArtObject a : grafo.vertexSet())
-			for(ArtObject aa : grafo.vertexSet())
-				if(!a.equals(aa) && !grafo.containsEdge(a, aa)) {
-					int peso = dao.getPeso(a, aa);
-					if(peso > 0)
-						Graphs.addEdge(grafo, a, aa, peso);
-				}
+		for(ArtObject a : grafo.vertexSet()) {
+			for(ArtObject v : dao.getVicini(a)) {
+				ArtObject oo = null;
+				for(ArtObject o : oggetti)
+					if(o.equals(v)) { 
+						break;
+					}
+				Graphs.addEdge(grafo, a, oo, v.getCuratorApproved());
+			}
+		}
+		
 	}
 	
 	public List<ArtObject> getConnessi(int id){

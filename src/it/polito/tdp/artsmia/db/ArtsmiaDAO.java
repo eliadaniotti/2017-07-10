@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import it.polito.tdp.artsmia.model.ArtObject;
@@ -64,21 +65,20 @@ public class ArtsmiaDAO {
 		}
 	}
 	
-public int getPeso(ArtObject a1, ArtObject a2) {
+public List<ArtObject> getVicini(ArtObject a1) {
 		
-		String sql = "SELECT COUNT(*) AS cont FROM exhibition_objects e1, exhibition_objects e2 WHERE e1.exhibition_id=e2.exhibition_id AND e1.object_id=? AND e2.object_id=?";
+		String sql = "SELECT  e1.object_id, e2.object_id, COUNT(*) as cont FROM exhibition_objects e1, exhibition_objects e2 WHERE e1.object_id=? AND e1.object_id < e2.object_id AND e1.exhibition_id=e2.exhibition_id GROUP BY e1.object_id, e2.object_id";
 		
-		int result=0;
+		List<ArtObject> result = new LinkedList<ArtObject>();
 		Connection conn = DBConnect.getConnection();
 
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
 			st.setInt(1, a1.getId());
-			st.setInt(2, a2.getId());
 			ResultSet res = st.executeQuery();
 			
-			if (res.next()) {
-				result = res.getInt("cont");
+			while (res.next()) {
+				result.add(new ArtObject(res.getInt("e2.object_id"),null,null,null,res.getInt("cont"),null,null,null,null,null,0, null,null,null,null,null));
 			}
 			
 			conn.close();
@@ -86,7 +86,7 @@ public int getPeso(ArtObject a1, ArtObject a2) {
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return 0;
+			return null;
 		}
 	}
 	
