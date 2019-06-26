@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.polito.tdp.artsmia.model.ArtObject;
+import it.polito.tdp.artsmia.model.Exhibition;
 
 public class ArtsmiaDAO {
 
@@ -37,5 +38,57 @@ public class ArtsmiaDAO {
 			return null;
 		}
 	}
+	
+	public List<Exhibition> listExhibitions() {
+		
+		String sql = "SELECT * from exhbitions";
+		List<Exhibition> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+
+				Exhibition e = new Exhibition(res.getInt("exhibition_id"), res.getString("exhibition_department"),
+						res.getString("exhibition_title"), res.getInt("begin"), res.getInt("end"));
+				
+				result.add(e);
+			}
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+public int getPeso(ArtObject a1, ArtObject a2) {
+		
+		String sql = "SELECT COUNT(*) AS cont FROM exhibition_objects e1, exhibition_objects e2 WHERE e1.exhibition_id=e2.exhibition_id AND e1.object_id=? AND e2.object_id=?";
+		
+		int result=0;
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, a1.getId());
+			st.setInt(2, a2.getId());
+			ResultSet res = st.executeQuery();
+			
+			if (res.next()) {
+				result = res.getInt("cont");
+			}
+			
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
 	
 }
